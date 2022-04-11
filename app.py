@@ -1,8 +1,4 @@
-import streamlit as st
-import numpy as np
 import pandas as pd
-import requests
-import altair as alt
 
 from sidebar import *
 from setup import *
@@ -14,7 +10,6 @@ def main():
     data = load_reference_tables()
     request_dictionary = create_sidebar(data)
     df = pd.read_pickle("hold.pkl")
-
 
     chart = create_chart(df)
     chart
