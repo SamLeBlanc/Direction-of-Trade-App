@@ -10,10 +10,21 @@ def human_format(num):
     return '$%.1f%s' % (num, ['', 'K', 'M', 'B', 'T', 'P'][magnitude])
 
 
-def create_chart(df):
-    df2 = df.groupby('rtTitle').sum()
-    df2 = df2[['TradeValue']].sort_values(by="TradeValue", ascending=False)
-    df2 = df2.iloc[0:10,:].reset_index()
+def create_chart(df, request_dictionary):
+
+    tf = {"1":"Import", "2":"Export", "all":"Net Export"}
+    direction = tf[request_dictionary['direction']]
+
+    df = df[df.rgDesc == direction]
+
+    df2 = df[df.yr == max(df.yr)]
+    df2 = df2.sort_values(by="TradeValue", ascending=False)
+    if direction in ['Import','Export']:
+        df2 = df2.iloc[0:10,:].reset_index()
+    else:
+        df2 = pd.concat([df2.iloc[0:5,:], df2.iloc[-5:,:]]).reset_index()
+
+    top_cont = list(df2.rtTitle)
 
     df = df[df['rtTitle'].isin(list(df2.rtTitle))]
     df['yr'] = pd.to_datetime(df['yr'], format="%Y")
@@ -21,7 +32,8 @@ def create_chart(df):
 
     nearest = alt.selection(type='single', nearest=True, on='mouseover', fields=['yr'], empty='none')
 
-    line = alt.Chart(df).mark_line().encode(x='yr:T', y='TradeValue:Q', color='rtTitle:N')
+    line = alt.Chart(df).mark_line().encode(x='yr:T', y='TradeValue:Q',
+        color = alt.Color('rtTitle:N', sort=alt.EncodingSortField('TradeValue', op='mean', order='descending')))
 
     selectors = alt.Chart(df).mark_point().encode(x='yr:T', opacity=alt.value(0)).add_selection(nearest)
 
@@ -42,5 +54,5 @@ def create_chart(df):
                 .add_selection(selection)
                 .interactive())
 
-    chart = alt.layer(line, selectors, points, rules, text).properties(width=800, height=600)
-    return chart
+    chart = alt.layer(line, selectors, points, rules, text).properties(width=600, height=600)
+    return chart, top_cont

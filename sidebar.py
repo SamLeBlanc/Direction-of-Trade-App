@@ -1,29 +1,31 @@
 import streamlit as st
 
 def create_sidebar(data):
+    st.sidebar.title("Direction of Trade App")
+
     country_names = tuple(data['countries']['country'])
     coded_countries = data['countries']
     coded_products = data['products']
 
-    st.sidebar.write('## 1. Select Trade Direction*')
-    direction = st.sidebar.selectbox("", ["Import","Export","re-Import","re-Export","All"])
-    tf = {"Import":"1", "Export":"2", "re-Import":"3", "re-Export":"4", "All":"all"}
+    st.sidebar.write('## Trade Direction')
+    direction = st.sidebar.selectbox("", ["Import","Export","Net Export"])
+    tf = {"Import":"1", "Export":"2", "Net Export":"all"}
     direction = tf[direction]
 
-    st.sidebar.write('## 2. Select Reporting Country*')
+    st.sidebar.write('## Reporting Country')
     reporters = st.sidebar.multiselect('', country_names[1:], ["All"])
     dat = coded_countries[coded_countries['country'].isin(reporters)]
     r_codes = dat.code.values
 
-    st.sidebar.write('## 3. Select Partner Country')
+    st.sidebar.write('## Partner Country')
     partners = st.sidebar.multiselect('', country_names, ["World"])
     df = coded_countries[coded_countries['country'].isin(partners)]
     p_codes = df.code.values
 
-    st.sidebar.write('## 4. Select Time Period')
-    years = st.sidebar.slider('Note: Selecting more than 10 years will cause longer load times', 1980, 2020, (2010, 2020))
+    st.sidebar.write('## Time Period')
+    years = st.sidebar.slider('Note: Selecting >5 years will cause longer load times', 1980, 2020, (2010, 2020))
 
-    st.sidebar.write('## 5. Select Goods')
+    st.sidebar.write('## Goods')
     st.sidebar.write('Commodity Levels')
     commodity_levels = st.sidebar.multiselect('', ["Aggregate","2-Digit","4-Digit"], ["Aggregate","2-Digit"])
     cl = {"Aggregate":1, "2-Digit":2, "4-Digit":4}

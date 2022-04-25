@@ -32,13 +32,13 @@ def setup_api_request(request_dictionary):
     for i in range(len(years)//5):
         years_.append('%2C'.join(years[i*5 : (i+1)*5]))
 
-    # df = pd.DataFrame()
+    df = pd.DataFrame()
     urls = []
     for yr in years_:
         url = f"""https://comtrade.un.org/api/get?max=10000&type=C&freq=A&px=HS&ps={yr}&r={r_codes}&p={p_codes}&rg={direction}&cc={commodity_codes}"""
         urls.append(url)
-        # df_ = run_api_request(url)
-        # df = pd.concat([df,df_])
-
+    #     df_ = run_api_request(url)
+    #     df = pd.concat([df,df_])
+    #
     # df.to_pickle("hold.pkl")
     return urls
