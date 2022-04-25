@@ -5,6 +5,23 @@ st.set_page_config(page_title='Trade', page_icon=":shark:")
 st.title("UN COMTRADE")
 subtitle = st.empty()
 
+def create_subtitle(df):
+        tf = {"1":"Import", "2":"Export", "all":"Net Export"}
+        direction = tf[request_dictionary['direction']]
+
+        df = data['countries']
+        r = request_dictionary['r_codes'][0]
+        r2 = df[df.code == r]['country'].values[0]
+
+        p = request_dictionary['p_codes'][0]
+        p2 = df[df.code == p]['country'].values[0]
+
+        y0 = request_dictionary['years'][0]
+        y1 = request_dictionary['years'][1]
+
+        subtitle.text(f"Currently showing the {direction}s from {r2} to {p2} between {y0} and {y1}.")
+
+
 def load_reference_tables():
     """
     Load reference tables containing info on UN country and commodity codes.

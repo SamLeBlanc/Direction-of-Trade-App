@@ -9,6 +9,24 @@ def human_format(num):
     # add more suffixes if you need them
     return '$%.1f%s' % (num, ['', 'K', 'M', 'B', 'T', 'P'][magnitude])
 
+def calculate_net_exports(df):
+    df = df.loc[(df.rgDesc == 'Export') | (df.rgDesc == 'Import')]
+    df_ = df.copy(deep=True)
+    for index, row in df_.iterrows():
+        net_exports = np.nan
+        counterpart = df_.loc[(df_.yr == row.yr) &
+                             (df_.rgDesc != row.rgDesc) &
+                             (df_.rtCode == row.rtCode) &
+                             (df_.ptCode == row.ptCode) &
+                             (df_.cmdCode == row.cmdCode)]
+
+        if len(counterpart) == 1 and row.rgDesc == 'Export':
+            net_exports = row.TradeValue - counterpart.iloc[0].TradeValue
+            new_row = row.to_dict()
+            new_row['rgDesc'] = 'Net Export'
+            new_row['TradeValue'] = net_exports
+            df = df.append(new_row, ignore_index = True)
+    return df.reset_index()
 
 def create_chart(df, request_dictionary):
 
