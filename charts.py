@@ -1,5 +1,7 @@
 import pandas as pd
 import altair as alt
+import numpy as np
+import country_converter as coco
 
 def human_format(num):
     magnitude = 0
@@ -9,29 +11,11 @@ def human_format(num):
     # add more suffixes if you need them
     return '$%.1f%s' % (num, ['', 'K', 'M', 'B', 'T', 'P'][magnitude])
 
-def calculate_net_exports(df):
-    df = df.loc[(df.rgDesc == 'Export') | (df.rgDesc == 'Import')]
-    df_ = df.copy(deep=True)
-    for index, row in df_.iterrows():
-        net_exports = np.nan
-        counterpart = df_.loc[(df_.yr == row.yr) &
-                             (df_.rgDesc != row.rgDesc) &
-                             (df_.rtCode == row.rtCode) &
-                             (df_.ptCode == row.ptCode) &
-                             (df_.cmdCode == row.cmdCode)]
 
-        if len(counterpart) == 1 and row.rgDesc == 'Export':
-            net_exports = row.TradeValue - counterpart.iloc[0].TradeValue
-            new_row = row.to_dict()
-            new_row['rgDesc'] = 'Net Export'
-            new_row['TradeValue'] = net_exports
-            df = df.append(new_row, ignore_index = True)
-    return df.reset_index()
 
-def create_chart(df, request_dictionary):
+def create_chart(df, token):
 
-    tf = {"1":"Import", "2":"Export", "all":"Net Export"}
-    direction = tf[request_dictionary['direction']]
+    direction = token['direction']
 
     df = df[df.rgDesc == direction]
 
@@ -44,9 +28,12 @@ def create_chart(df, request_dictionary):
 
     top_cont = list(df2.rtTitle)
 
+
     df = df[df['rtTitle'].isin(list(df2.rtTitle))]
     df['yr'] = pd.to_datetime(df['yr'], format="%Y")
     df['tool'] = df['TradeValue'].apply(lambda row: human_format(row))
+
+    # df['rtTitle'] = df.rtTitle.apply(lambda x: coco.convert(names=x, to='name_short', not_found=None))
 
     nearest = alt.selection(type='single', nearest=True, on='mouseover', fields=['yr'], empty='none')
 
@@ -59,6 +46,8 @@ def create_chart(df, request_dictionary):
 
     text = line.mark_text(align="center", dy=-15, fontSize=15, fontWeight="bold",lineBreak = "\n"
                 ).encode(text=alt.condition(nearest, 'tool:N', alt.value(' ')))
+
+
 
     selection = alt.selection_multi(fields=['rtTitle'], bind='legend')
 
