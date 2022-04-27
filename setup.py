@@ -2,25 +2,6 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(page_title='Trade', page_icon="🌐")
-# st.title("UN COMTRADE")
-# subtitle = st.empty()
-
-def create_subtitle(data, request_dictionary):
-    tf = {"1":"Import", "2":"Export", "all":"Net Export"}
-    direction = tf[request_dictionary['direction']]
-
-    df = data['countries']
-    r = request_dictionary['r_codes'][0]
-    r2 = df[df.code == r]['country'].values[0]
-
-    p = request_dictionary['p_codes'][0]
-    p2 = df[df.code == p]['country'].values[0]
-
-    y0 = request_dictionary['years'][0]
-    y1 = request_dictionary['years'][1]
-
-    subtitle.text(f"Currently showing the {direction}s from {r2} to {p2} between {y0} and {y1}.")
-
 
 def load_reference_tables():
     """
@@ -58,4 +39,5 @@ def alter_default_CSS():
     st.markdown("<style> .css-1oe6wy4 h2  { font-family: 'Rubik', sans-serif; } </style> ", unsafe_allow_html=True)
     st.markdown("<style> .css-16huue1  { font-family: 'Rubik', sans-serif; } </style> ", unsafe_allow_html=True)
     # st.markdown("<style> .css-1v3fvcr  { margin-bottom: -150px } </style> ", unsafe_allow_html=True)
-    st.markdown("<style> #MainMenu {visibility: hidden;} footer {visibility: hidden;} </style>", unsafe_allow_html=True)
+    st.markdown("<style> footer {visibility: hidden;} </style>", unsafe_allow_html=True)
+    st.markdown("<style> .css-10trblm { font-family: 'Rubik', sans-serif; } </style> ", unsafe_allow_html=True)

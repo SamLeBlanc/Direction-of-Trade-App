@@ -14,15 +14,15 @@ def create_sidebar(data):
     st.sidebar.write('## Reporting Country')
     reporters = st.sidebar.multiselect('', country_names[1:], ['All'])
     dat = coded_countries[coded_countries['country'].isin(reporters)]
-    r_codes = dat.code.values
+    reporter_codes = dat.code.values
 
     st.sidebar.write('## Partner Country')
     partners = st.sidebar.multiselect('', country_names, ['World'])
     df = coded_countries[coded_countries['country'].isin(partners)]
-    p_codes = df.code.values
+    parter_codes = df.code.values
 
     st.sidebar.write('## Time Period')
-    years = st.sidebar.slider('Note: Selecting >5 years will cause longer load times', 1980, 2020, (2014, 2018))
+    years = st.sidebar.slider('Note: Selecting >5 years will cause longer load times', 1980, 2020, (2010, 2020))
 
     st.sidebar.write('## Goods')
     st.sidebar.write('Commodity Levels')
@@ -40,8 +40,8 @@ def create_sidebar(data):
     commodity_codes = [dict[code] for code in commodity_codes]
 
     return {
-        'r_codes' : r_codes,
-        'p_codes' : p_codes,
+        'reporter_codes' : reporter_codes,
+        'parter_codes' : parter_codes,
         'direction' : direction,
         'years' : years,
         'commodity_codes' : commodity_codes

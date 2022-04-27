@@ -7,30 +7,27 @@ from setup import *
 from charts import *
 from calls import *
 
-
-
-
 def main():
     alter_default_CSS()
     data = load_reference_tables()
     token = create_sidebar(data)
-    # create_subtitle(data, request_dictionary)
     urls = setup_api_request(token)
     df = pd.read_pickle("hold1.pkl")
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([0.9,1])
     with col1:
-        st.write(f"### Annual {token['direction']}s by Country (Top 10)")
-        chart, top_cont = create_chart(df, token)
+        st.write(f"#### Annual {token['direction']}s by Country (Top 10)")
+        df, graphed_countries = format_chart_data(df, token)
+        chart = create_chart(df, token)
         chart
 
     with col2:
         coded_countries = data['countries']
-        dat = coded_countries[coded_countries['country'].isin(top_cont[0:5])]
-        r_codes = dat.code.values
+        dat = coded_countries[coded_countries['country'].isin(graphed_countries[0:5])]
+        reporter_codes = dat.code.values
 
         token2 = {
-            'r_codes' : r_codes,
-            'p_codes' : token['p_codes'],
+            'reporter_codes' : reporter_codes,
+            'parter_codes' : token['parter_codes'],
             'direction' : token['direction'],
             'years' : token['years'],
             'commodity_codes' : 'AG2'
@@ -41,7 +38,7 @@ def main():
         df = df[['cmdDescE','TradeValue']].sort_values(by='TradeValue', ascending=False)
         s = ''
 
-        st.write(f"### Top Aggregated {token['direction']}s of Graphed Countries ({token2['years'][1]})")
+        st.write(f"#### Top Aggregated {token['direction']}s of Graphed Countries ({token2['years'][1]})")
         for index, row in df[:10].iterrows():
             num = '{:,}'.format(row.TradeValue)
             new_title = f'''
@@ -53,7 +50,8 @@ def main():
 
 
     alter_default_CSS()
-    show_api_call_button(urls)
+    for u in urls:
+        st.write(u)
 
 if __name__ == "__main__":
     main()

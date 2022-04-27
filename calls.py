@@ -3,16 +3,40 @@ import pandas as pd
 import requests
 import numpy as np
 
-def show_api_call_button(urls):
-    if st.button('Show API Call'):
-        token['reporters'] = 'China'
-        redraw(data, token)
-        for u in urls:
-             st.write(u)
-    else:
-         pass
+def setup_api_request(token):
+    # Get relevant information from request token
+    direction = token['direction']
+
+    # Join reporter, partner, and commodity codes with the url recognized 'space' character ('%2C')
+    reporter_codes = '%2C'.join(token['reporter_codes'])
+    parter_codes = '%2C'.join(token['parter_codes'])
+    commodity_codes = '%2C'.join(token['commodity_codes'])
+
+    # Convert year array to strings and join sets of five years together into a single string
+    # Five years is the max number the API will accept, otherwise we split into multiple requests
+    years_ = [str(i) for i in range(token['years'][0], token['years'][1])]
+    years = []
+    for i in range(1+len(years_)//5):
+        years.append('%2C'.join(years_[i*5 : (i+1)*5]))
+
+    df = pd.DataFrame()
+    urls = []
+    for yr in years:
+        url = f"""https://comtrade.un.org/api/get?max=10000&type=C&freq=A&px=HS&ps={yr}&r={reporter_codes}&p={parter_codes}&rg=All&cc={commodity_codes}"""
+        urls.append(url)
+        df_ = run_api_request(url)
+        df = pd.concat([df,df_])
+
+    df = calculate_net_exports(df)
+    df.to_pickle("hold1.pkl")
+    return urls
 
 def run_api_request(url):
+    """
+    Preforms a single request to the UN Comtrade API and returns the data if the request was successful.
+    If the status_code is not 200, then an empty dataframe is returned. However, there can be issues
+    even with a 200 code, in such case we print out the validation status for more information.
+    """
     req = requests.get(url)
     if req.status_code == 200:
         dat = req.json();
@@ -24,6 +48,8 @@ def run_api_request(url):
         else:
             print(dat['validation']['status']['name'])
     return pd.DataFrame()
+
+
 
 def calculate_net_exports(df):
     df = df.loc[(df.rgDesc == 'Export') | (df.rgDesc == 'Import')]
@@ -44,39 +70,18 @@ def calculate_net_exports(df):
             df = df.append(new_row, ignore_index = True)
     return df.reset_index()
 
-def setup_api_request(token):
-    r_codes = '%2C'.join(token['r_codes'])
-    p_codes = '%2C'.join(token['p_codes'])
-    direction = token['direction']
-    commodity_codes = '%2C'.join(token['commodity_codes'])
-    years = [str(i) for i in range(token['years'][0], token['years'][1])]
-    years_ = []
-    for i in range(len(years)//5):
-        years_.append('%2C'.join(years[i*5 : (i+1)*5]))
-
-    df = pd.DataFrame()
-    urls = []
-    for yr in years_:
-        url = f"""https://comtrade.un.org/api/get?max=10000&type=C&freq=A&px=HS&ps={yr}&r={r_codes}&p={p_codes}&rg=All&cc={commodity_codes}"""
-        urls.append(url)
-    #     df_ = run_api_request(url)
-    #     df = pd.concat([df,df_])
-    #
-    # df = calculate_net_exports(df)
-    # df.to_pickle("hold1.pkl")
-    return urls
 
 def get_commodity_data(token):
-    r_codes = '%2C'.join(token['r_codes'])
-    p_codes = '%2C'.join(token['p_codes'])
+    reporter_codes = '%2C'.join(token['reporter_codes'])
+    parter_codes = '%2C'.join(token['parter_codes'])
     direction = token['direction']
     commodity_codes = 'AG2'
     yr = token['years'][1]
     df = pd.DataFrame()
     urls = []
-    url = f"""https://comtrade.un.org/api/get?max=10000&type=C&freq=A&px=HS&ps={yr}&r={r_codes}&p={p_codes}&rg=All&cc={commodity_codes}"""
+    url = f"""https://comtrade.un.org/api/get?max=10000&type=C&freq=A&px=HS&ps={yr}&r={reporter_codes}&p={parter_codes}&rg=All&cc={commodity_codes}"""
     urls.append(url)
-    # df = run_api_request(url)
-    # df = calculate_net_exports(df)
-    # df.to_pickle("hold2.pkl")
+    df = run_api_request(url)
+    df = calculate_net_exports(df)
+    df.to_pickle("hold2.pkl")
     return df
