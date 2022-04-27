@@ -11,8 +11,7 @@ def main():
     alter_default_CSS()
     data = load_reference_tables()
     token = create_sidebar(data)
-    urls = setup_api_request(token)
-    df = pd.read_pickle("hold1.pkl")
+    df, urls = setup_api_request(token)
     col1, col2 = st.columns([0.9,1])
     with col1:
         st.write(f"#### Annual {token['direction']}s by Country (Top 10)")
@@ -33,7 +32,6 @@ def main():
             'commodity_codes' : 'AG2'
         }
         df = get_commodity_data(token2)
-        df = pd.read_pickle("hold2.pkl")
         df = df.groupby(by=["cmdDescE"]).sum().reset_index()
         df = df[['cmdDescE','TradeValue']].sort_values(by='TradeValue', ascending=False)
         s = ''

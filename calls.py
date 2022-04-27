@@ -28,8 +28,7 @@ def setup_api_request(token):
         df = pd.concat([df,df_])
 
     df = calculate_net_exports(df)
-    df.to_pickle("hold1.pkl")
-    return urls
+    return df, urls
 
 def run_api_request(url):
     """
