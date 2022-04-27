@@ -82,5 +82,4 @@ def get_commodity_data(token):
     urls.append(url)
     df = run_api_request(url)
     df = calculate_net_exports(df)
-    df.to_pickle("hold2.pkl")
     return df

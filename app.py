@@ -7,6 +7,31 @@ from setup import *
 from charts import *
 from calls import *
 
+
+def format_chart_data(df, token):
+    # Only include data for the trade direction being graphed
+    df = df[df.rgDesc == token['direction']]
+
+    # Get 10 countries to be graphed
+    df_plot = df[df.yr == max(df.yr)]
+    df_plot = df_plot.sort_values(by="TradeValue", ascending=False)
+    if token['direction'] in ['Import','Export']:
+        df_plot = df_plot.iloc[0:10,:].reset_index()
+    else:
+        df_plot = pd.concat([df_plot.iloc[0:5,:], df_plot.iloc[-5:,:]]).reset_index()
+
+    graphed_countries = list(df_plot.rtTitle)
+
+    # Filter dataframe to only include the countries being graphed
+    df = df[df['rtTitle'].isin(graphed_countries)]
+
+    # Format axis and tooltip labels
+    df['yr'] = pd.to_datetime(df['yr'], format="%Y")
+    df['tool'] = df['TradeValue'].apply(lambda row: format_number_short(row))
+
+    return df, graphed_countries
+
+
 def main():
     alter_default_CSS()
     data = load_reference_tables()
