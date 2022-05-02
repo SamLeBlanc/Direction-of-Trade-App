@@ -1,6 +1,5 @@
 pandas
 numpy
-st_btn_select
 requests
 altair
 streamlit
