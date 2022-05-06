@@ -16,16 +16,16 @@ def main():
         urls_A = setup_request_A(token_A)
         df = make_batch_request(urls_A)
         st.write(f"#### Annual {token_A['direction']}s by Country (Top 10)")
-        df, graphed_countries = format_chart_data(df, token_A)
+        df, graphed_countries = format_linechart_data(df, token_A)
         chart = create_linechart_A(df, token_A)
         chart
 
     with columnB:
-        token_B = create_commodity_token(data, token_A, graphed_countries)
+        token_B = create_commodity_token_B(data, token_A, graphed_countries)
         urls_B = setup_request_B(token_B)
         df = make_batch_request(urls_B)
         st.write(f"#### Top Aggregated {token_A['direction']}s of Graphed Countries ({token_B['years'][1]})")
-        create_top_commodity_column(df, token_A, token_B)
+        create_commodity_list_B(df)
 
     alter_default_CSS()
     display_API_calls(urls_A + urls_B)
