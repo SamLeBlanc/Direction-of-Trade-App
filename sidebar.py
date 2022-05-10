@@ -28,21 +28,21 @@ def get_sidebar_selections(data):
 
     ## Reporting Country (i.e. primary country of interest) (default = USA)
     st.sidebar.write('## Reporting Country')
-    reporters = st.sidebar.multiselect('', country_names[1:], ['USA'])
+    reporters = st.sidebar.multiselect('', country_names[1:], ['All'])
     # Convert country name to code (needed for API) using reference data from above
     dat = coded_countries[coded_countries['country'].isin(reporters)]
     reporter_codes = dat.code.values
 
     ## Partner Country (i.e. secondary country of interest) (default = China)
     st.sidebar.write('## Partner Country')
-    partners = st.sidebar.multiselect('', country_names, ['China'])
+    partners = st.sidebar.multiselect('', country_names, ['World'])
     # Convert country name to code (needed for API) using reference data from above
     df = coded_countries[coded_countries['country'].isin(partners)]
     parter_codes = df.code.values
 
     ## Years of interest (for the sake of time, best to select less than 10 years or less)
     st.sidebar.write('## Time Period')
-    years = st.sidebar.slider('Note: Selecting >5 years will cause longer load times', 1980, 2020, (2014, 2018))
+    years = st.sidebar.slider('Note: Selecting >5 years will cause longer load times', 1980, 2020, (1990, 2020))
 
     ## Trade Commodities
     st.sidebar.write('## Trade Goods')
